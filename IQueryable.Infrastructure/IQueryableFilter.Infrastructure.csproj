@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="Autofac.Extras.AttributeMetadata" Version="4.0.1" />
+    <PackageReference Include="Autofac.Mef" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Composition" Version="1.0.31" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />
+    <PackageReference Include="System.Runtime.Caching" Version="4.5.0-rc1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Caching\" />
+    <Folder Include="Common\" />
+  </ItemGroup>
+
+</Project>
