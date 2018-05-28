@@ -7,11 +7,11 @@ using Autofac.Features.Metadata;
 
 namespace IQueryableFilter.Infrastructure.Filtering
 {
-    internal class NamedFilterFactory : INamedFilterFactory
+    internal class NamedFilterExpressionFactory : INamedFilterExpressionFactory
     {
         private readonly ILifetimeScope _lifetimeScope;
 
-        public NamedFilterFactory(ILifetimeScope lifetimeScope)
+        public NamedFilterExpressionFactory(ILifetimeScope lifetimeScope)
         {
             _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
         }

@@ -1,24 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using IQueryableFilter.Infrastructure.Common;
 using IQueryableFilter.Infrastructure.Expressions;
-using static System.Linq.Dynamic.DynamicExpression;
 
 namespace IQueryableFilter.Infrastructure.Filtering
 {
     internal class FilterExpressionBuilder : IFilterExpressionBuilder
     {
-        private readonly INamedFilterFactory _namedFilterFactory;
         private readonly IFilterExpressionFactory _filterExpressionFactory;
+        private readonly INamedFilterExpressionFactory _namedFilterExpressionFactory;
 
-        public FilterExpressionBuilder(INamedFilterFactory namedFilterFactory, 
+        public FilterExpressionBuilder(INamedFilterExpressionFactory namedFilterExpressionFactory,
             IFilterExpressionFactory filterExpressionFactory)
         {
-            _namedFilterFactory = namedFilterFactory ?? throw new ArgumentNullException(nameof(namedFilterFactory));
-            _filterExpressionFactory = filterExpressionFactory ?? throw new ArgumentNullException(nameof(filterExpressionFactory));
+            _namedFilterExpressionFactory = namedFilterExpressionFactory ??
+                                            throw new ArgumentNullException(nameof(namedFilterExpressionFactory));
+            _filterExpressionFactory = filterExpressionFactory ??
+                                       throw new ArgumentNullException(nameof(filterExpressionFactory));
         }
 
         public Expression<Func<TEntity, bool>> GetNamedFiltersExpressionPredicate<TEntity>(IFiltering filtering)
@@ -28,7 +26,7 @@ namespace IQueryableFilter.Infrastructure.Filtering
 
             if (namedFilters.Length == 0) return entity => true;
 
-            return _namedFilterFactory.GetNamedFilterPredicates<TEntity>(namedFilters)
+            return _namedFilterExpressionFactory.GetNamedFilterPredicates<TEntity>(namedFilters)
                 .Aggregate((current, predicate) => current.Or(predicate));
         }
 
