@@ -2,7 +2,7 @@
 {
     public class Filter
     {
-        public FilterOperation Operation { get; internal set; }
+        public IFilterOperation Operation { get; internal set; }
 
         public string PropertyName { get; internal set; }
 

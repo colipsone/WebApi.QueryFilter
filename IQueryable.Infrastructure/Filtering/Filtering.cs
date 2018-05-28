@@ -9,16 +9,22 @@ namespace IQueryableFilter.Infrastructure.Filtering
     public class Filtering : IFiltering
     {
         private readonly IFilterExpressionFactory _filterExpressionFactory;
+        private readonly IFilterOperationFactory _filterOperationFactory;
 
         private readonly Filter[] _filters;
         private readonly INamedFilterExpressionFactory _namedFilterExpressionFactory;
 
         public Filtering(IDictionary<string, string[]> queryStringParameters,
             IFilterExpressionFactory filterExpressionFactory,
-            INamedFilterExpressionFactory namedFilterExpressionFactory)
+            INamedFilterExpressionFactory namedFilterExpressionFactory, 
+            IFilterOperationFactory filterOperationFactory)
         {
-            _filterExpressionFactory = filterExpressionFactory;
-            _namedFilterExpressionFactory = namedFilterExpressionFactory;
+            _filterExpressionFactory = filterExpressionFactory ??
+                                       throw new ArgumentNullException(nameof(filterExpressionFactory));
+            _namedFilterExpressionFactory = namedFilterExpressionFactory ??
+                                            throw new ArgumentNullException(nameof(namedFilterExpressionFactory));
+            _filterOperationFactory = filterOperationFactory ??
+                                      throw new ArgumentNullException(nameof(filterOperationFactory));
             _filters = ParseFilters(queryStringParameters);
         }
 
@@ -35,12 +41,12 @@ namespace IQueryableFilter.Infrastructure.Filtering
 
         private Filter[] GetNamedFilters()
         {
-            return _filters.Where(filter => filter.Operation == FilterOperation.Named).ToArray();
+            return _filters.Where(filter => filter.Operation.Type == FilterOperationType.Named).ToArray();
         }
 
         private Filter[] GetQueryFilters()
         {
-            return _filters.Where(filter => filter.Operation != FilterOperation.Named).ToArray();
+            return _filters.Where(filter => filter.Operation.Type == FilterOperationType.Regular).ToArray();
         }
 
         private static string GetPropertyNameInCamelCase(IEnumerable<string> values)
@@ -62,13 +68,13 @@ namespace IQueryableFilter.Infrastructure.Filtering
             return (fieldKeys: values.Skip(1).Take(values.Length - 2).ToArray(), operation: values.Last());
         }
 
-        private static Filter[] ParseFilters(IDictionary<string, string[]> queryStringParameters)
+        private Filter[] ParseFilters(IDictionary<string, string[]> queryStringParameters)
         {
             return queryStringParameters.Where(param => param.Key.StartsWith("filter["))
                 .Select(param =>
                 {
                     (string[] fieldKeys, string operation) = ParseFilterItem(param.Key);
-                    FilterOperation filterOperation = ParseOperation(operation);
+                    IFilterOperation filterOperation = ParseOperation(operation);
                     string propertyName = GetPropertyNameInCamelCase(fieldKeys);
                     string sourcePropertyName = GetSourcePropertyName(fieldKeys);
                     return param.Value.Select(val => new Filter
@@ -81,38 +87,15 @@ namespace IQueryableFilter.Infrastructure.Filtering
                 }).SelectMany(res => res).ToArray();
         }
 
-        private static FilterOperation ParseOperation(string stringOperation)
+        private IFilterOperation ParseOperation(string stringOperation)
         {
-            switch (stringOperation)
+            IFilterOperation operation = _filterOperationFactory.GetByShorthandName(stringOperation);
+            if (operation == null)
             {
-                case "eq":
-                {
-                    return FilterOperation.Equals;
-                }
-                case "gt":
-                {
-                    return FilterOperation.GreaterThan;
-                }
-                case "gte":
-                {
-                    return FilterOperation.GreaterThanOrEqual;
-                }
-                case "lt":
-                {
-                    return FilterOperation.LessThan;
-                }
-                case "lte":
-                {
-                    return FilterOperation.LessThanOrEqual;
-                }
-                case "named":
-                {
-                    return FilterOperation.Named;
-                }
-
-                default:
-                    throw new NotSupportedException($"Filter operation {stringOperation} is not supported!");
+                throw new NotSupportedException($"Filter operation {stringOperation} is not supported!");
             }
+
+            return operation;
         }
     }
 }

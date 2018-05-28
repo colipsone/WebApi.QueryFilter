@@ -11,15 +11,19 @@ namespace IQueryableFilter.WebApi.Binders
     public class FilteringBinder : IModelBinder
     {
         private readonly IFilterExpressionFactory _filterExpressionFactory;
+        private readonly IFilterOperationFactory _filterOperationFactory;
         private readonly INamedFilterExpressionFactory _namedFilterExpressionFactory;
 
         public FilteringBinder(IFilterExpressionFactory filterExpressionFactory,
-            INamedFilterExpressionFactory namedFilterExpressionFactory)
+            INamedFilterExpressionFactory namedFilterExpressionFactory,
+            IFilterOperationFactory filterOperationFactory)
         {
             _filterExpressionFactory = filterExpressionFactory ??
                                        throw new ArgumentNullException(nameof(filterExpressionFactory));
             _namedFilterExpressionFactory = namedFilterExpressionFactory ??
                                             throw new ArgumentNullException(nameof(namedFilterExpressionFactory));
+            _filterOperationFactory = filterOperationFactory ??
+                                      throw new ArgumentNullException(nameof(filterOperationFactory));
         }
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
@@ -33,7 +37,9 @@ namespace IQueryableFilter.WebApi.Binders
 
             bindingContext.Result =
                 ModelBindingResult.Success(new Infrastructure.Filtering.Filtering(queryCollection,
-                    _filterExpressionFactory, _namedFilterExpressionFactory));
+                    _filterExpressionFactory,
+                    _namedFilterExpressionFactory,
+                    _filterOperationFactory));
             return Task.CompletedTask;
         }
     }

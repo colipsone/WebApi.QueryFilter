@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using IQueryableFilter.Infrastructure.Caching;
 using IQueryableFilter.Infrastructure.Filtering;
 using IQueryableFilter.Infrastructure.Time;
@@ -19,9 +20,15 @@ namespace IQueryableFilter.Infrastructure.Ioc
 
             // Filtering 
             builder.RegisterType<FilterExpressionFactory>().As<IFilterExpressionFactory>().SingleInstance();
+            builder.RegisterType<FilterOperationFactory>().As<IFilterOperationFactory>().SingleInstance();
             builder.RegisterType<NamedFilterExpressionFactory>().As<INamedFilterExpressionFactory>().SingleInstance();
             builder.RegisterType<FilterValueParserFactory>().As<IFilterValueParserFactory>().SingleInstance();
             builder.RegisterType<PropertyInfoResolver>().As<IPropertyInfoResolver>().SingleInstance();
+
+            builder.RegisterAssemblyTypes(AppDomain.CurrentDomain.GetAssemblies())
+                .Where(type => type.IsAssignableTo<IFilterOperation>())
+                .AsImplementedInterfaces()
+                .SingleInstance();
         }
     }
 }
