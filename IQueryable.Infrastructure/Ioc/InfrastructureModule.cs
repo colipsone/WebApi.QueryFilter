@@ -19,7 +19,8 @@ namespace IQueryableFilter.Infrastructure.Ioc
 
             // Filtering 
             builder.RegisterType<FilterExpressionBuilder>().As<IFilterExpressionBuilder>().SingleInstance();
-            builder.RegisterType<NamedFilterPredicateFactory>().As<INamedFilterPredicateFactory>().SingleInstance();
+            builder.RegisterType<FilterExpressionFactory>().As<IFilterExpressionFactory>().SingleInstance();
+            builder.RegisterType<NamedFilterFactory>().As<INamedFilterFactory>().SingleInstance();
             builder.RegisterType<FilterValueParserFactory>().As<IFilterValueParserFactory>().SingleInstance();
             builder.RegisterType<PropertyInfoResolver>().As<IPropertyInfoResolver>().SingleInstance();
         }
