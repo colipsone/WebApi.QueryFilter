@@ -21,7 +21,8 @@ namespace IQueryableFilter.WebApi.Controllers
                     Sub = new SubClass
                     {
                         Name = "sub test"
-                    }
+                    },
+                    Number = 2
                 },
                 new TestEntity
                 {
@@ -29,7 +30,8 @@ namespace IQueryableFilter.WebApi.Controllers
                     Sub = new SubClass
                     {
                         Name = "not sub test"
-                    }
+                    },
+                    Number = 3
                 }
             }.AsQueryable();
 

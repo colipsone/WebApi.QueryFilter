@@ -5,6 +5,8 @@
         public string Name { get; set; }
 
         public SubClass Sub { get; set; }
+
+        public int Number { get; set; }
     }
 
     public class SubClass
