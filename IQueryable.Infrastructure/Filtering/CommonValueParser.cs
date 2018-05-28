@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace IQueryableFilter.Infrastructure.Filtering
 {
-    public class CommonValueParser : IValueParser
+    internal class CommonValueParser : IValueParser
     {
         private readonly TypeConverter _typeConverter;
 
