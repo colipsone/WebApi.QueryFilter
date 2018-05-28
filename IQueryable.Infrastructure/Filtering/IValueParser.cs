@@ -2,6 +2,6 @@
 {
     internal interface IValueParser
     {
-        object Parse(string input);
+        bool TryParse(string input, out object parsedValue);
     }
 }

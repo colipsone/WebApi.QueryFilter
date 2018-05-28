@@ -12,9 +12,16 @@ namespace IQueryableFilter.Infrastructure.Filtering
             _typeConverter = typeConverter ?? throw new ArgumentNullException(nameof(typeConverter));
         }
 
-        public object Parse(string input)
+        public bool TryParse(string input, out object parsedValue)
         {
-            return _typeConverter.ConvertFromString(input);
+            if (!_typeConverter.IsValid(input))
+            {
+                parsedValue = null;
+                return false;
+            }
+
+            parsedValue = _typeConverter.ConvertFromString(input);
+            return true;
         }
     }
 }

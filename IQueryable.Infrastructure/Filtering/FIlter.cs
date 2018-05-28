@@ -9,10 +9,5 @@
         public string PropertyNameSource { get; internal set; }
 
         public string Value { get; internal set; }
-
-        public string ToParameterizedExpression(int index)
-        {
-            return $"{PropertyName} {Operation.ToSqlOperator()} @{index}";
-        }
     }
 }
