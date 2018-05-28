@@ -19,10 +19,9 @@ namespace IQueryableFilter.Infrastructure.Filtering
                 propertyInfoResolver ?? throw new ArgumentNullException(nameof(propertyInfoResolver));
         }
 
-        public Expression<Func<TEntity, bool>> GetFilterExpression<TEntity>(IFiltering filtering)
+        public Expression<Func<TEntity, bool>> GetFilterExpression<TEntity>(Filter[] queryFilters)
             where TEntity : class, new()
         {
-            Filter[] queryFilters = filtering.GetQueryFilters();
             if (!queryFilters.Any()) return entity => true;
 
             ParameterExpression entityParam = Expression.Parameter(typeof(TEntity));

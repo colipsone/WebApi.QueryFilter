@@ -19,6 +19,10 @@ namespace IQueryableFilter.Infrastructure.Filtering
         public Expression<Func<TEntity, bool>>[] GetNamedFilterPredicates<TEntity>(Filter[] namedFilters)
             where TEntity : class, new()
         {
+            if (namedFilters.Length == 0)
+            {
+                return new[] {(Expression<Func<TEntity, bool>>) (entity => true)};
+            }
             return namedFilters.Select(filter =>
                 {
                     Meta<INamedFilter> namedFilter = _lifetimeScope.Resolve<IEnumerable<Meta<INamedFilter>>>()

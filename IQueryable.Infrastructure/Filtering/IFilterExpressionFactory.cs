@@ -3,8 +3,8 @@ using System.Linq.Expressions;
 
 namespace IQueryableFilter.Infrastructure.Filtering
 {
-    internal interface IFilterExpressionFactory
+    public interface IFilterExpressionFactory
     {
-        Expression<Func<TEntity, bool>> GetFilterExpression<TEntity>(IFiltering filtering) where TEntity : class, new();
+        Expression<Func<TEntity, bool>> GetFilterExpression<TEntity>(Filter[] queryFilters) where TEntity : class, new();
     }
 }

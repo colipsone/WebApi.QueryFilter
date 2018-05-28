@@ -2,47 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using IQueryableFilter.Infrastructure.Expressions;
 
 namespace IQueryableFilter.Infrastructure.Filtering
 {
     public class Filtering : IFiltering
     {
-        private readonly IFilterExpressionBuilder _expressionBuilder;
+        private readonly IFilterExpressionFactory _filterExpressionFactory;
 
         private readonly Filter[] _filters;
+        private readonly INamedFilterExpressionFactory _namedFilterExpressionFactory;
 
         public Filtering(IDictionary<string, string[]> queryStringParameters,
-            IFilterExpressionBuilder expressionBuilder)
+            IFilterExpressionFactory filterExpressionFactory,
+            INamedFilterExpressionFactory namedFilterExpressionFactory)
         {
-            _expressionBuilder = expressionBuilder ?? throw new ArgumentNullException(nameof(expressionBuilder));
+            _filterExpressionFactory = filterExpressionFactory;
+            _namedFilterExpressionFactory = namedFilterExpressionFactory;
             _filters = ParseFilters(queryStringParameters);
-        }
-
-        public string GetFilterSetUniqueName()
-        {
-            return string.Join("|",
-                _filters.OrderBy(filter => filter.PropertyName)
-                    .Select(filter => filter.PropertyName));
-        }
-
-        public Filter[] GetNamedFilters()
-        {
-            return _filters.Where(filter => filter.Operation == FilterOperation.Named).ToArray();
         }
 
         public Expression<Func<TEntity, bool>> GetNamedFiltersPredicate<TEntity>() where TEntity : class, new()
         {
-            return _expressionBuilder.GetNamedFiltersExpressionPredicate<TEntity>(this);
-        }
-
-        public Filter[] GetQueryFilters()
-        {
-            return _filters.Where(filter => filter.Operation != FilterOperation.Named).ToArray();
+            return _namedFilterExpressionFactory.GetNamedFilterPredicates<TEntity>(GetNamedFilters())
+                .Aggregate((current, predicate) => current.Or(predicate));
         }
 
         public Expression<Func<TEntity, bool>> GetQueryFiltersPredicate<TEntity>() where TEntity : class, new()
         {
-            return _expressionBuilder.GetQueryFiltersExpressionPredicate<TEntity>(this);
+            return _filterExpressionFactory.GetFilterExpression<TEntity>(GetQueryFilters());
+        }
+
+        private Filter[] GetNamedFilters()
+        {
+            return _filters.Where(filter => filter.Operation == FilterOperation.Named).ToArray();
+        }
+
+        private Filter[] GetQueryFilters()
+        {
+            return _filters.Where(filter => filter.Operation != FilterOperation.Named).ToArray();
         }
 
         private static string GetPropertyNameInCamelCase(IEnumerable<string> values)
@@ -69,10 +67,10 @@ namespace IQueryableFilter.Infrastructure.Filtering
             return queryStringParameters.Where(param => param.Key.StartsWith("filter["))
                 .Select(param =>
                 {
-                    (string[] fieldKeys, var operation) = ParseFilterItem(param.Key);
+                    (string[] fieldKeys, string operation) = ParseFilterItem(param.Key);
                     FilterOperation filterOperation = ParseOperation(operation);
-                    var propertyName = GetPropertyNameInCamelCase(fieldKeys);
-                    var sourcePropertyName = GetSourcePropertyName(fieldKeys);
+                    string propertyName = GetPropertyNameInCamelCase(fieldKeys);
+                    string sourcePropertyName = GetSourcePropertyName(fieldKeys);
                     return param.Value.Select(val => new Filter
                     {
                         Operation = filterOperation,

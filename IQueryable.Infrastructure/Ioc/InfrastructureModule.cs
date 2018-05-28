@@ -18,7 +18,6 @@ namespace IQueryableFilter.Infrastructure.Ioc
             builder.RegisterType<MemoryCacheManager>().As<ICacheManager>().SingleInstance();
 
             // Filtering 
-            builder.RegisterType<FilterExpressionBuilder>().As<IFilterExpressionBuilder>().SingleInstance();
             builder.RegisterType<FilterExpressionFactory>().As<IFilterExpressionFactory>().SingleInstance();
             builder.RegisterType<NamedFilterExpressionFactory>().As<INamedFilterExpressionFactory>().SingleInstance();
             builder.RegisterType<FilterValueParserFactory>().As<IFilterValueParserFactory>().SingleInstance();

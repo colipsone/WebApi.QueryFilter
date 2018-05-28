@@ -10,11 +10,16 @@ namespace IQueryableFilter.WebApi.Binders
 {
     public class FilteringBinder : IModelBinder
     {
-        private readonly IFilterExpressionBuilder _expressionBuilder;
+        private readonly IFilterExpressionFactory _filterExpressionFactory;
+        private readonly INamedFilterExpressionFactory _namedFilterExpressionFactory;
 
-        public FilteringBinder(IFilterExpressionBuilder expressionBuilder)
+        public FilteringBinder(IFilterExpressionFactory filterExpressionFactory,
+            INamedFilterExpressionFactory namedFilterExpressionFactory)
         {
-            _expressionBuilder = expressionBuilder ?? throw new ArgumentNullException(nameof(expressionBuilder));
+            _filterExpressionFactory = filterExpressionFactory ??
+                                       throw new ArgumentNullException(nameof(filterExpressionFactory));
+            _namedFilterExpressionFactory = namedFilterExpressionFactory ??
+                                            throw new ArgumentNullException(nameof(namedFilterExpressionFactory));
         }
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
@@ -27,7 +32,8 @@ namespace IQueryableFilter.WebApi.Binders
                 request.Query.ToDictionary(q => q.Key, q => q.Value.ToArray());
 
             bindingContext.Result =
-                ModelBindingResult.Success(new Infrastructure.Filtering.Filtering(queryCollection, _expressionBuilder));
+                ModelBindingResult.Success(new Infrastructure.Filtering.Filtering(queryCollection,
+                    _filterExpressionFactory, _namedFilterExpressionFactory));
             return Task.CompletedTask;
         }
     }
