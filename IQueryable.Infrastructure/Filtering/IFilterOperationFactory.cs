@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace IQueryableFilter.Infrastructure.Filtering
+﻿namespace IQueryableFilter.Infrastructure.Filtering
 {
     public interface IFilterOperationFactory
     {
