@@ -10,20 +10,11 @@ namespace IQueryableFilter.WebApi.Binders
 {
     public class FilteringBinder : IModelBinder
     {
-        private readonly IFilterExpressionFactory _filterExpressionFactory;
-        private readonly IFilterOperationFactory _filterOperationFactory;
-        private readonly INamedFilterExpressionFactory _namedFilterExpressionFactory;
+        private readonly IFiltering _filtering;
 
-        public FilteringBinder(IFilterExpressionFactory filterExpressionFactory,
-            INamedFilterExpressionFactory namedFilterExpressionFactory,
-            IFilterOperationFactory filterOperationFactory)
+        public FilteringBinder(IFiltering filtering)
         {
-            _filterExpressionFactory = filterExpressionFactory ??
-                                       throw new ArgumentNullException(nameof(filterExpressionFactory));
-            _namedFilterExpressionFactory = namedFilterExpressionFactory ??
-                                            throw new ArgumentNullException(nameof(namedFilterExpressionFactory));
-            _filterOperationFactory = filterOperationFactory ??
-                                      throw new ArgumentNullException(nameof(filterOperationFactory));
+            _filtering = filtering ?? throw new ArgumentNullException(nameof(filtering));
         }
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
@@ -35,11 +26,9 @@ namespace IQueryableFilter.WebApi.Binders
             Dictionary<string, string[]> queryCollection =
                 request.Query.ToDictionary(q => q.Key, q => q.Value.ToArray());
 
-            bindingContext.Result =
-                ModelBindingResult.Success(new Infrastructure.Filtering.Filtering(queryCollection,
-                    _filterExpressionFactory,
-                    _namedFilterExpressionFactory,
-                    _filterOperationFactory));
+            _filtering.Initialize(queryCollection);
+
+            bindingContext.Result = ModelBindingResult.Success(_filtering);
             return Task.CompletedTask;
         }
     }

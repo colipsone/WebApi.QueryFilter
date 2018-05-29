@@ -23,7 +23,10 @@ namespace IQueryableFilter.Infrastructure.Ioc
             builder.RegisterType<FilterOperationFactory>().As<IFilterOperationFactory>().SingleInstance();
             builder.RegisterType<NamedFilterExpressionFactory>().As<INamedFilterExpressionFactory>().SingleInstance();
             builder.RegisterType<FilterValueParserFactory>().As<IFilterValueParserFactory>().SingleInstance();
+            builder.RegisterType<QueryStringFilterItemsParser>().As<IFilterItemsParser>().SingleInstance();
             builder.RegisterType<PropertyInfoResolver>().As<IPropertyInfoResolver>().SingleInstance();
+
+            builder.RegisterType<Filtering.Filtering>().As<IFiltering>().InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(AppDomain.CurrentDomain.GetAssemblies())
                 .Where(type => type.IsAssignableTo<IFilterOperation>())
