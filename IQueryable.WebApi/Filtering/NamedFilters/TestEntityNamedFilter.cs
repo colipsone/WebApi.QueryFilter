@@ -16,7 +16,7 @@ namespace IQueryableFilter.WebApi.Filtering
         /// <returns></returns>
         public Expression<Func<TestEntity, bool>> GetFilterPredicate()
         {
-            return ent => ent.Name == "test";
+            return ent => ent.UniqueName == "test";
         }
     }
 }

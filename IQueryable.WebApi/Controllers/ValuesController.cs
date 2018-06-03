@@ -17,19 +17,19 @@ namespace IQueryableFilter.WebApi.Controllers
             {
                 new TestEntity
                 {
-                    Name = "test",
+                    UniqueName = "test",
                     Sub = new SubClass
                     {
-                        Name = "sub test"
+                        FirstName = "sub test"
                     },
                     Number = 2
                 },
                 new TestEntity
                 {
-                    Name = "not test",
+                    UniqueName = "not test",
                     Sub = new SubClass
                     {
-                        Name = "not sub test"
+                        FirstName = "not sub test"
                     },
                     Number = 3
                 }

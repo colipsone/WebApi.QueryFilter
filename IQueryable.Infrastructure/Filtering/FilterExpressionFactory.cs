@@ -37,17 +37,17 @@ namespace IQueryableFilter.Infrastructure.Filtering
             PropertyInfo propertyInfo = _propertyInfoResolver.GetPropertyInfo<TEntity>(filter.PropertyName);
 
             if (propertyInfo == null)
-                throw new ArgumentException($"Filtered entity has no field with name {filter.PropertyNameSource}.");
+                throw new ArgumentException($"Filtered entity has no field with name {filter.PropertyName}.");
 
             IValueParser valueParser = _filterValueParserFactory.GetValueParser(propertyInfo);
 
             if (!valueParser.TryParse(filter.Value, out object parsedValue))
             {
                 throw new ArgumentException(
-                    $"Inappropriate filter value '{filter.Value}' for field with name {filter.PropertyNameSource}.");
+                    $"Inappropriate filter value '{filter.Value}' for field with name {filter.PropertyName}.");
             }
 
-            return filter.Operation.GetOperationExpression(Expression.Property(entityParam, filter.PropertyName), Expression.Constant(
+            return filter.Operation.GetOperationExpression(Expression.Property(entityParam, propertyInfo.Name), Expression.Constant(
                     parsedValue,
                     propertyInfo.PropertyType));
         }

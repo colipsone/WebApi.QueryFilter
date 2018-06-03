@@ -6,6 +6,9 @@ namespace IQueryableFilter.Infrastructure.Filtering
 {
     public class QueryStringFilterItemsParser : IFilterItemsParser
     {
+        private const string FilterPrefix = "filter[";
+        private static readonly char[] FilterItemSplitters = { '[', ']' };
+
         private readonly IFilterOperationFactory _filterOperationFactory;
 
         public QueryStringFilterItemsParser(IFilterOperationFactory filterOperationFactory)
@@ -22,34 +25,23 @@ namespace IQueryableFilter.Infrastructure.Filtering
                         val.Split('_').Select(val1 => val1[0].ToString().ToUpper() + val1.Substring(1)))));
         }
 
-        private static string GetSourcePropertyName(IEnumerable<string> values)
+        private Filter[] ParseFilterItem(KeyValuePair<string, string[]> input)
         {
-            return string.Join(".", values);
-        }
-
-        private static (string[] fieldKeys, string operation) ParseFilterItem(string input)
-        {
-            string[] values = input.Split('[', ']').Where(item => !string.IsNullOrEmpty(item)).ToArray();
-            return (fieldKeys: values.Skip(1).Take(values.Length - 2).ToArray(), operation: values.Last());
+            string[] values = input.Key.Split(FilterItemSplitters).Where(item => !string.IsNullOrEmpty(item)).ToArray();
+            string fieldName = string.Join('.', values.Skip(1).Take(values.Length - 2));
+            IFilterOperation filterOperation = ParseOperation(values.Last());
+            return input.Value.Select(param => new Filter
+            {
+                Operation = filterOperation,
+                PropertyName = fieldName,
+                Value = param
+            }).ToArray();
         }
 
         public Filter[] ParseFilters(IDictionary<string, string[]> queryStringParameters)
         {
-            return queryStringParameters.Where(param => param.Key.StartsWith("filter["))
-                .Select(param =>
-                {
-                    (string[] fieldKeys, string operation) = ParseFilterItem(param.Key);
-                    IFilterOperation filterOperation = ParseOperation(operation);
-                    string propertyName = GetPropertyNameInCamelCase(fieldKeys);
-                    string sourcePropertyName = GetSourcePropertyName(fieldKeys);
-                    return param.Value.Select(val => new Filter
-                    {
-                        Operation = filterOperation,
-                        PropertyName = propertyName,
-                        PropertyNameSource = sourcePropertyName,
-                        Value = val
-                    });
-                }).SelectMany(res => res).ToArray();
+            return queryStringParameters.Where(param => param.Key.StartsWith(FilterPrefix))
+                .Select(ParseFilterItem).SelectMany(res => res).ToArray();
         }
 
         private IFilterOperation ParseOperation(string stringOperation)

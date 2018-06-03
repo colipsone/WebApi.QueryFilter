@@ -6,8 +6,6 @@
 
         public string PropertyName { get; internal set; }
 
-        public string PropertyNameSource { get; internal set; }
-
         public string Value { get; internal set; }
     }
 }

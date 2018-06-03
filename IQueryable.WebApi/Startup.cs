@@ -4,8 +4,10 @@ using IQueryableFilter.WebApi.Binders;
 using IQueryableFilter.WebApi.Ioc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Serialization;
 
 namespace IQueryableFilter.WebApi
 {
@@ -21,8 +23,17 @@ namespace IQueryableFilter.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options => options.ModelBinderProviders.Insert(0, new FilteringBinderProvider()));
+            var defaultContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new SnakeCaseNamingStrategy()
+            };
+            services.AddSingleton(defaultContractResolver);
+
+            services
+                .AddMvc(options => options.ModelBinderProviders.Insert(0, new FilteringBinderProvider()))
+                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = defaultContractResolver);
         }
+
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new InfrastructureModule());
