@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace IQueryableFilter.Infrastructure.Filtering
 {
@@ -14,6 +16,12 @@ namespace IQueryableFilter.Infrastructure.Filtering
     public enum FilterOperationType
     {
         Regular,
-        Named
+        Named,
+        Group
+    }
+
+    public interface IFilterGroupOperation : IFilterOperation
+    {
+        IEnumerable<IFilterGroupOperation> Operations { get; set; }
     }
 }
